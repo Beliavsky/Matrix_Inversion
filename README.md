@@ -1,2 +1,2 @@
 # Matrix_Inversion
-matrix inversion using Crout's method
+Matrix inversion using Crout's method, calling Fortran code by Alan Miller
