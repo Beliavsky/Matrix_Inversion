@@ -6,6 +6,7 @@ integer, parameter :: n = 3
 real(kind=dp) :: a(n,n),ainv(n,n),chk(n,n)
 integer :: i
 character (len=*), parameter :: fmt_cr = "(a10,*(f8.4))"
+call random_seed()
 call random_number(a)
 ainv = inverse(a)
 chk = matmul(a,ainv)
