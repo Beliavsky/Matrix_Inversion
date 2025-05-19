@@ -1,0 +1,28 @@
+executables = xmatrix_inverse_ifx.exe xequicorr_ifx.exe xequicorr_port_ifx.exe
+FC     = ifx
+FFLAGS = /nologo /traceback /fpe-all:0 /warn:all /assume:protect_parens /implicitnone /stand:f23
+obj    = kind.obj linear_solve.obj xmatrix_inverse.obj util.obj xequicorr.obj xequicorr_port.obj
+
+all: $(executables)
+
+# Compile .f90 to .obj
+%.obj: %.f90
+	$(FC) $(FFLAGS) -c $<
+
+xmatrix_inverse_ifx.exe: kind.obj linear_solve.obj xmatrix_inverse.obj
+	$(FC) -o xmatrix_inverse_ifx.exe kind.obj linear_solve.obj xmatrix_inverse.obj $(FFLAGS)
+
+xequicorr_ifx.exe: kind.obj linear_solve.obj util.obj xequicorr.obj
+	$(FC) -o xequicorr_ifx.exe kind.obj linear_solve.obj util.obj xequicorr.obj $(FFLAGS)
+
+xequicorr_port_ifx.exe: kind.obj linear_solve.obj util.obj xequicorr_port.obj
+	$(FC) -o xequicorr_port_ifx.exe kind.obj linear_solve.obj util.obj xequicorr_port.obj $(FFLAGS)
+
+run: $(executables)
+	./xmatrix_inverse_ifx.exe
+	./xequicorr_ifx.exe
+	./xequicorr_port_ifx.exe
+
+clean:
+	rm -f $(executables) $(obj)
+
