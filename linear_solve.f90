@@ -1,7 +1,8 @@
 module linear_solve
 use kind_mod, only: dp
 implicit none
-public :: krout,inverse,hat_matrix
+public :: krout,inverse,hat_matrix,equicorr,inverse_equicorr_off_diag, &
+   inverse_equicorr
 contains
 subroutine KROUT(MO, N, M, A, KA, B, KB, IERR)
 !-----------------------------------------------------------------------
@@ -261,4 +262,47 @@ real(kind=dp), intent(in) :: x(:,:)                    ! matrix for which hat co
 real(kind=dp)             :: xhat(size(x,1),size(x,1)) ! hat matrix of x
 xhat = matmul(matmul(x,inverse(matmul(transpose(x),x))),transpose(x))
 end function hat_matrix
+
+pure function equicorr(n, r) result(xmat)
+! return a correlation matrix with equal off-diagonal elements
+integer      , intent(in)  :: n ! dimension of correlation matrix
+real(kind=dp), intent(in)  :: r ! off-diagonal correlation
+real(kind=dp), allocatable :: xmat(:,:)
+integer                    :: i
+allocate (xmat(n, n), source = r)
+do i=1,n
+   xmat(i,i) = 1.0_dp
+end do
+end function equicorr
+
+pure function inverse_equicorr_off_diag(n, r) result(y)
+! value of off-diagonal elements of the inverse of an equicorrelation matrix
+integer      , intent(in) :: n
+real(kind=dp), intent(in) :: r
+real(kind=dp)             :: y
+y = r / ((r-1) * (1 + (n-1)*r)) 
+end function inverse_equicorr_off_diag
+
+pure function inverse_equicorr_diag(n, r) result(y)
+! value of diagonal elements of the inverse of an equicorrelation matrix
+integer      , intent(in) :: n
+real(kind=dp), intent(in) :: r
+real(kind=dp)             :: y
+y = (1 + (n-2)*r) / ((1-r) * (1 + (n-1)*r))
+end function inverse_equicorr_diag
+
+pure function inverse_equicorr(n, r) result(xmat)
+! return the inverse of a correlation matrix with equal off-diagonal elements
+integer      , intent(in)  :: n ! dimension of correlation matrix
+real(kind=dp), intent(in)  :: r ! off-diagonal correlation
+real(kind=dp), allocatable :: xmat(:,:)
+integer                    :: i
+real(kind=dp)              :: ydiag
+ydiag = inverse_equicorr_diag(n, r)
+allocate (xmat(n, n), source = inverse_equicorr_off_diag(n, r))
+do i=1,n
+   xmat(i,i) = ydiag
+end do
+end function inverse_equicorr
+
 end module linear_solve
